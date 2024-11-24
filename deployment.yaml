@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apiexamen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apiexamen
+  template:
+    metadata:
+      labels:
+        app: apiexamen
+    spec:
+      containers:
+       - name: apiexamen
+         image: apiexamen:latest
+         resources:
+           limits:
+             memory: "512Mi"
+             cpu: "500m"
+           requests:
+             memory: "256Mi"
+             cpu: "250m"
+         ports:
+         - containerPort: 15000
