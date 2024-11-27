@@ -1,62 +1,77 @@
-const { request } = require('express')
-const { ConnectDB } = require('../repository/db.js')
+const { execQuery } = require('../repository/db.js')
 
 const getAllSites = async (req, res) => {
-    const db = await ConnectDB()
-    db.query("SELECT * FROM Sitios", (err, result) => {
-        if (err) {
-            res.status(500).send("Error obteniendo sitios")
-            throw err
-        }
+    execQuery("SELECT id, descripcion, latitud, longitud FROM Sitios")
+    .then(result => {
         res.status(200).send(result)
+    })
+    .catch(err => {
+        res.status(500).send("Error obteniendo sitios")
     })
 }
 
 const getOneSite = async (req, res) => {
-    const db = await ConnectDB()
-    const id = req.params.id
-    db.query("SELECT * FROM Sitios WHERE id = ?", [id], (err, result) => {
-        if(err){
-            res.status(500).send("Error obteniendo sitio")
-            throw err
-        }
+    execQuery(`SELECT * FROM Sitios WHERE id = ${id}`)
+    .then(result => {
         res.status(200).send(result)
+    })
+    .catch(err => {
+        res.status(500).send("Error obteniendo sitio")
     })
 }
 
 const createSite = async (req, res) => {
-    const db = await ConnectDB()
     const { descripcion, latitud, longitud, video, audio} = req.body
-    db.query(`CALL sitiosInsert('${descripcion}', ${latitud}, ${longitud}, ${video}, ${audio});`, (err, result) => {
-        if(err){
-            res.status(500).send("Error creando sitio")
-            throw err
-        }
+    execQuery(`CALL sitiosInsert('${descripcion}', ${latitud}, ${longitud}, '${video}', '${audio}');`)
+    .then(result => {
         res.status(200).send("Sitio creado")
+    })
+    .catch(err => {
+        res.status(500).send("Error creando sitio")
     })
 }
 
 const updateSite = async (req, res) => {
-    const db = await ConnectDB()
     const { id, descripcion, latitud, longitud, video, audio} = req.body
-    db.query(`CALL sitiosUpdate('${descripcion}', ${latitud}, ${longitud}, ${video}, ${audio}, ${id});`, (err, result) => {
-        if(err){
-            res.status(500).send("Error actualizando sitio")
-            throw err
-        }
+    execQuery(`CALL sitiosUpdate('${descripcion}', ${latitud}, ${longitud}, ${video}, ${audio}, ${id});`)
+    .then(result => {
         res.status(200).send("Sitio actualizado")
+    })
+    .catch(err => {
+        res.status(500).send("Error actualizando sitio")
     })
 }
 
 const deleteSite = async (req, res) => {
-    const db = await ConnectDB()
     const id = req.params.id
-    db.query("CALL sitiosDelete(?);", [id], (err, result) => {
-        if(err){
-            res.status(500).send("Error eliminando sitio")
-            throw err
-        }
+    execQuery(`CALL sitiosDelete(${id});`)
+    .then(result => {
+        res.status(500).send("Error eliminando sitio")
+    })
+    .catch(err => {
         res.status(200).send("Sitio eliminado")
+    })
+}
+
+const getAudio = async (req, res) => {
+    const id = req.params.id
+    execQuery(`SELECT audioFile FROM Sitios WHERE id = ${id}`)
+    .then(result => {
+        res.status(200).send({audioFile: result[0]["audioFile"]})
+    })
+    .catch(err => {
+        res.status(500).send("Error obteniendo audio")
+    })
+}
+
+const getVideo = async (req, res) => {
+    const id = req.params.id
+    execQuery(`SELECT videoDigital FROM Sitios WHERE id = ${id}`)
+    .then(result => {
+        res.status(200).send({ videoDigital : result[0]["videoDigital"]})
+    })
+    .catch(err => {
+        res.status(500).send("Error obteniendo video")
     })
 }
 
@@ -66,4 +81,6 @@ module.exports = {
     createSite,
     updateSite,
     deleteSite,
+    getAudio,
+    getVideo
 }

@@ -6,6 +6,8 @@ const sitesController = require('../controllers/sitesController.js')
 router
 .get("/", sitesController.getAllSites)
 .get("/:id", sitesController.getOneSite)
+.get("/audio/:id", sitesController.getAudio)
+.get("/video/:id", sitesController.getVideo)
 .post("/", parser.json(), sitesController.createSite)
 .put("/", parser.json(), sitesController.updateSite)
 .delete("/:id", sitesController.deleteSite)
