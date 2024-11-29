@@ -11,6 +11,7 @@ const getAllSites = async (req, res) => {
 }
 
 const getOneSite = async (req, res) => {
+    const id = req.params.id
     execQuery(`SELECT * FROM Sitios WHERE id = ${id}`)
     .then(result => {
         res.status(200).send(result)
@@ -32,8 +33,9 @@ const createSite = async (req, res) => {
 }
 
 const updateSite = async (req, res) => {
-    const { id, descripcion, latitud, longitud, video, audio} = req.body
-    execQuery(`CALL sitiosUpdate('${descripcion}', ${latitud}, ${longitud}, ${video}, ${audio}, ${id});`)
+    const { descripcion, latitud, longitud, video, audio} = req.body
+    const { id } = req.params
+    execQuery(`CALL sitiosUpdate('${descripcion}', ${latitud}, ${longitud}, '${video}','${audio}', ${id});`)
     .then(result => {
         res.status(200).send("Sitio actualizado")
     })
@@ -46,10 +48,10 @@ const deleteSite = async (req, res) => {
     const id = req.params.id
     execQuery(`CALL sitiosDelete(${id});`)
     .then(result => {
-        res.status(500).send("Error eliminando sitio")
+        res.status(200).send("Sitio eliminado")
     })
     .catch(err => {
-        res.status(200).send("Sitio eliminado")
+        res.status(500).send("Error eliminando sitio")
     })
 }
 
@@ -57,7 +59,8 @@ const getAudio = async (req, res) => {
     const id = req.params.id
     execQuery(`SELECT audioFile FROM Sitios WHERE id = ${id}`)
     .then(result => {
-        res.status(200).send({audioFile: result[0]["audioFile"]})
+        let audioBuffer = result[0]["audioFile"]
+        res.status(200).send({audioFile: audioBuffer})
     })
     .catch(err => {
         res.status(500).send("Error obteniendo audio")
@@ -68,10 +71,11 @@ const getVideo = async (req, res) => {
     const id = req.params.id
     execQuery(`SELECT videoDigital FROM Sitios WHERE id = ${id}`)
     .then(result => {
-        res.status(200).send({ videoDigital : result[0]["videoDigital"]})
+        const videoBuffer = result[0]["videoDigital"]
+        res.status(200).send({ videoDigital : videoBuffer})
     })
     .catch(err => {
-        res.status(500).send("Error obteniendo video")
+        res.status(500).send({message: "Error obteniendo video", error: err})
     })
 }
 

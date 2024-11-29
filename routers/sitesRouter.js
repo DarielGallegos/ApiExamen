@@ -9,7 +9,7 @@ router
 .get("/audio/:id", sitesController.getAudio)
 .get("/video/:id", sitesController.getVideo)
 .post("/", parser.json(), sitesController.createSite)
-.put("/", parser.json(), sitesController.updateSite)
+.put("/:id", parser.json(), sitesController.updateSite)
 .delete("/:id", sitesController.deleteSite)
 
 module.exports = router
